@@ -7,7 +7,8 @@ from langchain_community.vectorstores import FAISS
 def main():
     # Load embeddings and vector store
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    store = FAISS.load_local("faiss_index", embeddings)
+    store = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+
 
     # Setup retriever and QA chain
     retriever = store.as_retriever()
