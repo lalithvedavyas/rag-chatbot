@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+langchain
+faiss-cpu
+PyPDF2
+unstructured
+openai
+python-dotenv
+pydantic
