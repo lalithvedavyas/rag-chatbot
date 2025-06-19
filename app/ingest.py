@@ -1,32 +1,22 @@
-from dotenv import load_dotenv
-load_dotenv()
-
-from langchain_community.document_loaders import UnstructuredPDFLoader
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
 import os
+from langchain.document_loaders import DirectoryLoader
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
 
 def ingest_documents():
-    # Path to your documents folder
-    data_path = "data"
+    # Load documents from the 'data' folder
+    loader = DirectoryLoader('data', glob="**/*.pdf")
+    docs = loader.load()
 
-    # Collect all document file paths (example for PDFs)
-    pdf_files = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith(".pdf")]
+    # Initialize free embeddings from Hugging Face
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-    docs = []
-    for pdf in pdf_files:
-        loader = UnstructuredPDFLoader(pdf)
-        docs.extend(loader.load())
-
-    # Initialize embeddings model
-    embeddings = OpenAIEmbeddings()
-
-    # Create FAISS vector store from documents
+    # Create FAISS vector store from documents and embeddings
     store = FAISS.from_documents(docs, embeddings)
 
-    # Save the FAISS index locally in embeddings folder
-    store.save_local("embeddings")
+    # Save the index locally in 'index' folder
+    store.save_local("index")
+    print("Ingestion completed and index saved.")
 
 if __name__ == "__main__":
     ingest_documents()
-    print("Document ingestion and vector store creation completed.")
