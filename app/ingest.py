@@ -1,29 +1,29 @@
-import os
 from langchain_community.document_loaders import UnstructuredPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+import os
 
-def ingest_documents(data_dir="data", index_dir="embeddings"):
+def ingest_documents():
+    # Path to your documents folder
+    data_path = "data"
+
+    # Collect all document file paths (example for PDFs)
+    pdf_files = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith(".pdf")]
+
     docs = []
-    for filename in os.listdir(data_dir):
-        filepath = os.path.join(data_dir, filename)
-        if filename.lower().endswith(".pdf"):
-            loader = UnstructuredPDFLoader(filepath)
-        else:
-            # Add other loaders for DOCX, TXT etc, or skip
-            continue
-
+    for pdf in pdf_files:
+        loader = UnstructuredPDFLoader(pdf)
         docs.extend(loader.load())
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    docs_split = text_splitter.split_documents(docs)
-
+    # Initialize embeddings model
     embeddings = OpenAIEmbeddings()
-    store = FAISS.from_documents(docs_split, embeddings)
 
-    os.makedirs(index_dir, exist_ok=True)
-    store.save_local(index_dir)
+    # Create FAISS vector store from documents
+    store = FAISS.from_documents(docs, embeddings)
+
+    # Save the FAISS index locally in embeddings folder
+    store.save_local("embeddings")
 
 if __name__ == "__main__":
     ingest_documents()
+    print("Document ingestion and vector store creation completed.")
