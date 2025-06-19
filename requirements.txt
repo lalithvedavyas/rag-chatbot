@@ -1,9 +1,6 @@
 fastapi
-uvicorn
-langchain
+uvicorn[standard]
+langchain-community
+langchain-openai
 faiss-cpu
-PyPDF2
-unstructured
-openai
 python-dotenv
-pydantic
